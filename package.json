@@ -1,0 +1,18 @@
+{
+  "name": "counterpoint-installation",
+  "version": "1.0.0",
+  "description": "counterpoint instrument",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "DQG",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.15.2",
+    "lodash": "^4.17.4",
+    "node-uuid": "^1.4.8",
+    "osc": "^2.2.0",
+    "ws": "^2.3.1"
+  }
+}
