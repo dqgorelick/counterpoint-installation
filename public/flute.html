@@ -4,6 +4,8 @@
     <meta charset="UTF-8" />
     <title>Counterpoint</title>
     <script src="./javascripts/vendor/jquery.min.js"></script>
+    <script src='./javascripts/vendor/colors.js'></script>
+    <script src="./javascripts/helpers.js"></script>
     <style>
       *, *:before, *:after {
         -webkit-box-sizing: inherit;
@@ -84,11 +86,12 @@
       .cursor-wrapper .solo {
         opacity: 1;
         filter: blur(0.5px);
+        opacity: 0.80;
         z-index: 999;
       }
 
       .cursor {
-        opacity: 0.75;
+        opacity: 0.65;
         filter: blur(4px);
         z-index: 99;
         border-radius: 100%;
@@ -138,8 +141,8 @@
 </head>
 
 <body>
-<!--     <div class="buttons">
-        <div>
+    <div class="buttons">
+<!--         <div>
           <p>player</p>
           <div class="button" id="start-player">start</div>
           <div class="button" id="stop-player">stop</div>
@@ -162,12 +165,20 @@
         <div>
           <p>settings</p>
           <div class="button" id="circles">circles</div>
+        </div> -->
+        <div>
+          <p>ADD</p>
+          <div class="button" id="add">ADD</div>
         </div>
         <div>
-          <p>TEST</p>
-          <div class="button" id="test">test</div>
+          <p>REMOVE</p>
+          <div class="button" id="remove">REMOVE</div>
         </div>
-    </div> -->
+        <div>
+          <p>PLAYERS</p>
+          <div class="button" id="playerCount">0</div>
+        </div>
+    </div>
     <div class="canvas-wrapper">
       <!-- <div class="url"><span>play along at:</span><br>http://sfpc.ngrok.io</div> -->
       <div class="scale"></div>

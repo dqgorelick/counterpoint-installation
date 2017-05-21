@@ -53,8 +53,8 @@ OSCdef.new(
 				\rel, 4.0,
 				\cfmin, 50,
 				\cfmax, 250,
-				\rqmin, 0.2,
-				\rqmax, 0.25,
+/*				\rqmin, 0.2,
+				\rqmax, 0.25,*/
 				\ldb, 12,
 				\amp, 0.85,
 				\out, 0,
