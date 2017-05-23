@@ -7,7 +7,7 @@
 var QUANTIZE = true;
 var PORT_PLAYER = 8888;
 
-var DEFAULT_BASE_NOTE = 60;
+var DEFAULT_BASE_NOTE = 40;
 var DEFAULT_SONG_RATE = 450;
 
 var MODES = { player: 1, song: 2 };
@@ -22,19 +22,20 @@ var PENTATONIC_SCALE = [0, 2, 4, 7, 9];
 var MINOR_SCALE = [0, 2, 3, 5, 7, 8, 10];
 
 var TEMPOS = {
-  0: 400,
-  1: 800,
-  2: 4800
+  0: 350,
+  1: 700,
+  2: 1050,
+  3: 5000,
 }
 
-var CURRENT_SCALE = PENTATONIC_SCALE;
+var CURRENT_SCALE = MINOR_SCALE;
 var CANVAS_TOP = null; // get this from the css file from .note
 var CURSOR_WIDTH = 26;
 var CW = 1;
 var CCW = -1;
 var CURSOR_LEFT = 0;
 var CURSOR_RIGHT = 1;
-var STEPS = 11;
+var STEPS = 16;
 var NOTE_DURATION = 200; // 0.2 second delay set in SuperCollider
 
 var notes = [];
@@ -89,7 +90,10 @@ var Player = function(id, options, sendNote) {
   this.cursorRight = this.jQuery.find('.cursor-right');
   this.cursorLeft = this.jQuery.find('.cursor');
 
-
+  if (options.drone) {
+    console.log('drone added');
+    this.jQuery.find('.cursor-wrapper').addClass('drone');
+  }
   // this.jQuery.css('-webkit-transition', 'all ' + this.songRate + 'ms linear');
   // this.jQuery.css('transition', 'all ' + this.songRate + 'ms linear');
   this.jQuery.css('-webkit-transition', '-webkit-transform ' + this.songRate + 'ms linear');
@@ -119,8 +123,8 @@ Player.prototype.start = function() {
 
     // shitty legacy code
     // var midiNote = (current < 7 ? 0 : (current > 13 ? 24 : 12)) + self.baseNote + MAJOR_SCALE[(current) % 7];
+    // var midiNote = self.baseNote + CURRENT_SCALE[current%CURRENT_SCALE.length] + (Math.floor(current / CURRENT_SCALE.length) * 12);
 
-    var midiNote = self.baseNote + CURRENT_SCALE[current%CURRENT_SCALE.length] + (Math.floor(current / CURRENT_SCALE.length) * 12);
 
     // if neither hand is setup
     // initial setup
@@ -186,7 +190,7 @@ Player.prototype.start = function() {
 
     if (self.song.length > 0) {
       // play and animate note
-      self.sendNote(midiNote, self.songTempo);
+      self.sendNote(notes[current].midi, self.songTempo);
       animateNote(current, 150);
     }
 
@@ -265,9 +269,11 @@ Player.prototype.reset = function() {
 
 // create the note objects
 function createNotes(baseNote, cb) {
-  var maxWidth = window.innerWidth;
+  $('.canvas-wrapper').css('width', window.innerWidth*0.8);
+  var maxWidth = $('.canvas-wrapper').width();
+  var noteWidth = maxWidth / STEPS;
+
   for (var i = 0; i < STEPS; i++) {
-    var noteWidth = maxWidth / STEPS;
     var midi = DEFAULT_BASE_NOTE + CURRENT_SCALE[(i % CURRENT_SCALE.length)] + (Math.floor(i / CURRENT_SCALE.length) * 12);
     notes[i] = {
       id: i,
@@ -341,71 +347,71 @@ $(document).ready(function() {
 
   // auto create players
 
-  var playerCount = 0; // TODO: change this to UUID
-
   function generateSong(len) {
     var song = [];
-    len = len || randRange(8,12);
+    len = len || randRange(3,7);
     for (var i=0; i<len; i++) {
       song.push(randRange(0,STEPS));
     }
     return song;
   }
 
-  function createNewPlayer(amount) {
-    amount = amount || 1;
+  function createNewPlayer(tempo) {
     var color = goldenColors.getHsvGolden(0.33, 0.90);
     var lineColorRGB = { r: color.r, g: color.g, b: color.b };
     var lineColor = colorToHex(color.r, color.g, color.b);
     var props =  {
       color: {
-        // hex: "#ffffff",
-        // rgb: {r:255,g:255,b:255},
-        hex: lineColor,
-        rgb: lineColorRGB
+        hex: "#ffffff",
+        rgb: {r:255,g:255,b:255},
+        // hex: lineColor,
+        // rgb: lineColorRGB
       },
-      id: playerCount+'hello_test',
+      id: UUID(),
       notes: generateSong(),
-      tempo: randRange(0,3)
+      tempo: tempo ? tempo : randRange(0,3)
     };
-    for (var i = 0; i<amount; i++) {
-      players[props.id] = props;
-      players[props.id].id = props.id;
 
-      players[props.id].player = new Player(players[props.id].id,
-        {
-          songTempo: props.tempo,
-          songRate: TEMPOS[props.tempo],
-          song: players[props.id].notes,
-          color: props.color
-        }, sendNote);
-      players[props.id].player.stop();
-      players[props.id].player.reset();
-      if(QUANTIZE) {
-        players[props.id].toStart = true;
-      } else {
-        players[props.id].player.start();
-      }
-      playerCount++;
-      $('#playerCount').html(playerCount);
+    players[props.id] = props;
+    players[props.id].id = props.id;
+    players[props.id].player = new Player(players[props.id].id,
+      {
+        songTempo: props.tempo,
+        songRate: TEMPOS[props.tempo],
+        song: players[props.id].notes,
+        color: props.color,
+        dir: CW,
+        drone: tempo === 3
+      }, sendNote);
+    players[props.id].player.stop();
+    players[props.id].player.reset();
+    if(QUANTIZE) {
+      players[props.id].toStart = true;
+    } else {
+      players[props.id].player.start();
     }
+    $('#playerCount').html(Object.keys(players).length);
   }
 
   // remove players from the board
 
   function removeAllPlayers() {
     for (var id in players) {
-      players[id].player.stop();
-      players[id].player.remove();
-      // TODO: see if deleting is bad...
-      delete players[id];
-      // players[id] = null;
+      if(!!players[id]) {
+        players[id].player.stop();
+        players[id].player.remove();
+      }
     }
-    playerCount = 0;
+    players = {};
+    $('#playerCount').html(Object.keys(players).length);
   }
 
   $('#add').click(function() {
-    createNewPlayer(1);
+    createNewPlayer();
+  })
+
+  $('#drone').click(function() {
+    createNewPlayer(3);
   })
 
   $('#remove').click(function() {
@@ -429,7 +435,8 @@ $(document).ready(function() {
           if (iter === 0) {
             dir = note.dir;
           }
-          notes.push(note.midi)
+          var mapped = Math.floor(note.midi * STEPS);
+          notes.push(mapped)
         })
         players[message.id].notes = notes;
         players[message.id].player = new Player(players[message.id].id,
@@ -455,7 +462,12 @@ $(document).ready(function() {
           if (iter === 0) {
             players[message.id].dir = note.dir
           }
-          notes.push(note.midi)
+
+          var mapped = Math.floor(note.midi * STEPS);
+          console.log("note.midi", note.midi);
+          console.log("STEPS", STEPS);
+          console.log("mapped", mapped);
+          notes.push(mapped);
         })
         players[message.id].player.stop();
         players[message.id].player.reset();
@@ -505,30 +517,27 @@ $(document).ready(function() {
         // look for players to start
         if (players[id].toStart) {
           // reset timeout upon new input
+          console.log('starting player');
           players[id].player.timeout = 0;
           players[id].toStart = false;
           players[id].player.start();
         }
         // look for inactive players every second
-        if (loopCount >= 5) {
-          loopCount = 0;
-          // increase timeout every second
-          players[id].player.timeout += 1;
-          // remove player if no actions for more than 30 seconds
-          if (players[id].player.timeout >= 1000) {
-            players[id].player.stop();
-            players[id].player.remove();
-            players[id] = null;
-          }
+        // increase timeout every second
+        players[id].player.timeout += TEMPOS[0];
+        // remove player if no actions for more than 30 seconds
+        if (players[id].player.timeout >= 30000) {
+          players[id].player.stop();
+          players[id].player.remove();
+          players[id] = null;
         }
       }
     }
-    loopCount++;
   }
 
   // set interval at the shortest delimination of notes
   if (QUANTIZE) {
-    setInterval(loopPlayers, TEMPOS[0]/2);
+    setInterval(loopPlayers, TEMPOS[0]);
   }
 
   /*
@@ -540,8 +549,4 @@ $(document).ready(function() {
     sendNote(notes[note].midi);
   });
 
-  // $('.note').hover(function(evt) {
-  //   var note = $(this).attr("id");
-  //   sendNote(notes[note].midi);
-  // });
 });

@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <title>Counterpoint</title>
     <script src="./javascripts/vendor/jquery.min.js"></script>
+    <script src='./javascripts/vendor/uuid.min.js'></script>
     <script src='./javascripts/vendor/colors.js'></script>
     <script src="./javascripts/helpers.js"></script>
     <style>
@@ -18,9 +19,11 @@
         color: #fff;
         background-color: #000;
         overflow: hidden;
+        font-family: 'circular';
       }
       .buttons {
         position: absolute;
+        margin: 0 auto;
         bottom: 0;
         left: 0;
         z-index: 99999;
@@ -32,10 +35,10 @@
       .button {
         display: inline-block;
         padding: 5px 10px;
-        background-color: rgba(100,100,100,1);
+        background-color: rgba(20,20,20,1);
         opacity: 0.6;
         cursor: pointer;
-        color: #fff;
+        color: #777;
       }
       .button:hover {
         opacity: 1;
@@ -45,6 +48,7 @@
         width: 100%;
         height: 100vh;
         position: relative;
+        margin: 0 auto;
         background-color: rgba(247, 245, 218, 0.69);
         background-color: #000;
       }
@@ -85,14 +89,18 @@
 
       .cursor-wrapper .solo {
         opacity: 1;
-        filter: blur(0.5px);
-        opacity: 0.80;
         z-index: 999;
       }
 
-      .cursor {
-        opacity: 0.65;
+      .drone {
         filter: blur(4px);
+        opacity: 0.60;
+      }
+
+      .cursor {
+        display: none;
+        /*opacity: 0.8;*/
+        /*filter: blur(2px);*/
         z-index: 99;
         border-radius: 100%;
         position: absolute;
@@ -104,8 +112,9 @@
       }
 
       .cursor-right {
-        opacity: 0.75;
-        filter: blur(4px);
+        display: none;
+        /*opacity: 0.8;*/
+        /*filter: blur(2px);*/
         z-index: 99;
         border-radius: 100%;
         position: absolute;
@@ -128,59 +137,45 @@
       .url {
         font-size: 40px;
         position: absolute;
-        color: #ffffff;
+        color: #ccc;
         top : 40px;
         width: 100%;
         text-align: center;
         line-height: 60px;
+        letter-spacing: 0.05em;
       }
       .url span {
           font-size: 30px;
+      }
+
+      @font-face {
+        font-family: 'circular';
+        src:  url('./CircularStd-Book.otf') format('opentype');
       }
     </style>
 </head>
 
 <body>
     <div class="buttons">
-<!--         <div>
-          <p>player</p>
-          <div class="button" id="start-player">start</div>
-          <div class="button" id="stop-player">stop</div>
+        <div>
+          <!-- <p>ADD</p> -->
+          <div class="button" id="add">1</div>
         </div>
         <div>
-          <p>mozart</p>
-          <div class="button" id="start-mozart">start</div>
-          <div class="button" id="stop-mozart">stop</div>
+          <!-- <p>ADD</p> -->
+          <div class="button" id="drone">2</div>
         </div>
         <div>
-          <p>djorak</p>
-          <div class="button" id="start-dvorak">start</div>
-          <div class="button" id="stop-dvorak">stop</div>
-        </div>
-        <div>
-          <p>bach</p>
-          <div class="button" id="start-bach">start</div>
-          <div class="button" id="stop-bach">stop</div>
-        </div>
-        <div>
-          <p>settings</p>
-          <div class="button" id="circles">circles</div>
-        </div> -->
-        <div>
-          <p>ADD</p>
-          <div class="button" id="add">ADD</div>
-        </div>
-        <div>
-          <p>REMOVE</p>
+          <!-- <p>REMOVE</p> -->
           <div class="button" id="remove">REMOVE</div>
         </div>
-        <div>
+        <!-- <div>
           <p>PLAYERS</p>
           <div class="button" id="playerCount">0</div>
-        </div>
+        </div> -->
     </div>
     <div class="canvas-wrapper">
-      <!-- <div class="url"><span>play along at:</span><br>http://sfpc.ngrok.io</div> -->
+      <div class="url"><span>play along at:</span><br>http://counterpoint.ngrok.io</div>
       <div class="scale"></div>
       <div id="canvas"></div>
       <div class="players"></div>

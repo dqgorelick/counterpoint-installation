@@ -7,10 +7,13 @@ $(document).ready(function() {
   // sfpc
   // var socket = new WebSocket("ws://192.168.1.237:8088/");
   // sfpc ngrok
-  // var socket = new WebSocket("ws://sfpc_view.ngrok.io/");
+  var socket = new WebSocket("ws://sfpc_view.ngrok.io/");
   // localhost
   // var socket = new WebSocket("ws://127.0.0.1:8088/");
-  var socket = new WebSocket("ws://192.168.1.170:8088/");
+
+  // var socket = new WebSocket("ws://10.1.10.85:8088/")
+
+  // var socket = new WebSocket("ws://192.168.1.170:8088/");
   // catberry
   // var socket = new WebSocket("ws://10.0.1.31:8088/");
   // lior
@@ -124,7 +127,7 @@ $(document).ready(function() {
   function addNode(x, direction) {
     var el = document.getElementsByTagName("canvas")[0];
     var ctx = el.getContext("2d");
-    var midi = Math.floor((x / ctx.canvas.width) * 16);
+    var midi = (x / ctx.canvas.width);
     crosses.push({ x: x, direction: direction, midi: midi });
     drawDot(x, false);
   }
@@ -222,7 +225,7 @@ $(document).ready(function() {
     if (playing) {
       timeout += 1;
       // 1000 seconds before being removed from the screen
-      if (timeout >= 1000) {
+      if (timeout >= 30) {
         playing = false;
         timeout = 0;
         drawLine();

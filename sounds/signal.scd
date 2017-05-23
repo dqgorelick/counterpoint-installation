@@ -16,9 +16,9 @@ s.plotTree;
 (
 SynthDef(\bpfsaw2, {
 	arg atk=2, sus=0, rel=3, c1=1, c2=(-1),
-	freq=500, detune=0.1, pan=0, cfhzmin=0.1, cfhzmax=0.3,
-	cfmin=500, cfmax=2000, rqmin=0.1, rqmax=0.2,
-	lsf=200, ldb=0, amp=1, out=0;
+	freq=500, detune=0.01, pan=0, cfhzmin=0.1, cfhzmax=0.3,
+	cfmin=300, cfmax=350, rqmin=0.1, rqmax=0.2,
+	lsf=200, ldb=12, amp=1, out=0;
 	var sig, env;
 	env = EnvGen.kr(Env([0,1,1,0],[atk, sus, rel], [c1,0,c2]), doneAction:2);
 	sig = Saw.ar(freq * {LFNoise1.kr(0.5, detune).midiratio}!2);
@@ -39,6 +39,23 @@ SynthDef(\bpfsaw2, {
 
 (
 OSCdef.new(
+	\drone,
+	{
+		arg msg, time, addr, port;
+		(msg[1].asInteger).postln;
+		n = msg[1];
+		n.postln;
+		(
+			Synth.new(\bpfsaw2, [
+				\freq, msg[1].asInteger.midicps,
+				\dur, 3.5, \atk, 0.3, \rel, 4.5, \amp, 0.80, \out, 0, \pan, 0,
+			]);
+		)
+	},
+	'/drone'
+);
+
+OSCdef.new(
 	\half,
 	{
 		arg msg, time, addr, port;
@@ -48,17 +65,7 @@ OSCdef.new(
 		(
 			Synth.new(\bpfsaw2, [
 				\freq, msg[1].asInteger.midicps,
-				\dur, 3.5,
-				\atk, 0.25,
-				\rel, 4.0,
-				\cfmin, 50,
-				\cfmax, 250,
-/*				\rqmin, 0.2,
-				\rqmax, 0.25,*/
-				\ldb, 12,
-				\amp, 0.85,
-				\out, 0,
-				\pan, 0,
+				\dur, 0.8, \atk, 0.25, \rel, 1.1, \amp, 0.50, \out, 0, \pan, 0,
 			]);
 		)
 	},
@@ -74,16 +81,7 @@ OSCdef.new(
 		n.postln;
 		(
 			Synth.new(\bpfsaw2, [
-				\freq, msg[1].asInteger.midicps,
-				\dur, 0.5,
-				\atk, 0.05,
-				\rel, 0.8,
-				\cfmin, 200,
-				\cfmax, 250,
-				\ldb, 12,
-				\amp, 1,
-				\out, 0,
-				\pan, 0,
+				\freq, msg[1].asInteger.midicps, \dur, 0.5, \atk, 0.04, \rel, 0.5, \amp, 1,
 			]);
 		)
 	},
@@ -101,11 +99,7 @@ OSCdef.new(
 		n.postln;
 		(
 			Synth.new(\bpfsaw2, [
-				\freq, msg[1].asInteger.midicps,
-				\dur, 0.4,
-				\atk, 0.05,
-				\amp, 1,
-				\rel, 0.6, \cfmin, 200, \cfmax, 250, \ldb, 12,
+				\freq, msg[1].asInteger.midicps, \dur, 0.3, \atk, 0.04, \amp, 1, \rel, 0.4
 			]);
 		)
 	},
@@ -161,7 +155,7 @@ SynthDef("pipes", { arg scl = 0.2, freq = 440, ipress = 0.9, ibreath = 0.09, ife
 	kenvibr = EnvGen.kr(Env.new( [ 0.0, 0.0, 1, 1, 0.0 ], [ 0.5, 0.5, dur - 1.5, 0.5 ], 'linear') );
 
 	// create air flow and vibrato
-	aflow1 = LFClipNoise.ar( sr, kenv1 );
+	aflow1 = LFClipNoise.ar( sr, kenv1 ) * 0.25 ;
 	kvibr = SinOsc.ar( 5, 0, 0.1 * kenvibr );
 
 	asum1 = ( ibreath * aflow1 ) + kenv1 + kvibr;
@@ -172,7 +166,6 @@ SynthDef("pipes", { arg scl = 0.2, freq = 440, ipress = 0.9, ibreath = 0.09, ife
 	aflute1 = fdbckArray;
 	asum2 = asum1 + ( aflute1 * ifeedbk1 );
 
-	//ax = DelayL.ar( asum2, ifqc.reciprocal * 0.5, afqc * 0.5 );
 	ax = DelayC.ar( asum2, ifqc.reciprocal - block * 0.5, afqc * 0.5 - ( asum1/ifqc/cr ) + 0.001 );
 
 	apoly = ax - ( ax.cubed );
@@ -202,7 +195,7 @@ Pbind(
 ).play
 )
 
-// different notes
+// pipes
 (
 OSCdef.new(
 	\eighth,
@@ -211,7 +204,7 @@ OSCdef.new(
 		(msg[1].asInteger).postln;
 		n = msg[1];
 		n.postln;
-		Synth.new(\pipes, [\freq, msg[1].asInteger.midicps, \dur, 0.1, \amp, 0.09]);
+		Synth.new(\pipes, [\freq, msg[1].asInteger.midicps, \dur, 0.1, \amp, 0.45]);
 	},
 	'/eighth'
 );
@@ -224,21 +217,66 @@ OSCdef.new(
 		(msg[1].asInteger).postln;
 		n = msg[1];
 		n.postln;
-		Synth.new(\pipes, [\freq, msg[1].asInteger.midicps, \dur, 0.2, \amp, 0.11]);
+		Synth.new(\pipes, [\freq, msg[1].asInteger.midicps, \dur, 0.2, \amp, 0.5]);
 	},
 	'/quarter'
 );
 
-/*OSCdef.new(
+OSCdef.new(
 	\half,
 	{
 		arg msg, time, addr, port;
 		(msg[1].asInteger).postln;
 		n = msg[1];
 		n.postln;
-		Synth.new(\waveguideFlute, [\freq, msg[1].asInteger.midicps, \dur, 0.4, \amp, 0.13]);
+		Synth.new(\pipes, [\freq, msg[1].asInteger.midicps, \dur, 0.4, \amp, 0.55]);
 	},
 	'/half'
-);*/
-
+);
 )
+
+
+// quiet longer notes
+(
+OSCdef.new(
+	\half,
+	{
+		arg msg, time, addr, port;
+		(msg[1].asInteger).postln;
+		n = msg[1];
+		n.postln;
+		(
+			Synth.new(\bpfsaw2, [
+				\freq, msg[1].asInteger.midicps,
+				\dur, 0.8, \atk, 0.25, \rel, 1.1, \amp, 1.0, \out, 0, \pan, 0,
+			]);
+		)
+	},
+	'/half'
+);
+OSCdef.new(
+	\eighth,
+	{
+		arg msg, time, addr, port;
+		(msg[1].asInteger).postln;
+		n = msg[1];
+		n.postln;
+		Synth.new(\pipes, [\freq, msg[1].asInteger.midicps, \dur, 0.1, \amp, 0.45]);
+	},
+	'/eighth'
+);
+
+
+OSCdef.new(
+	\quarter,
+	{
+		arg msg, time, addr, port;
+		(msg[1].asInteger).postln;
+		n = msg[1];
+		n.postln;
+		Synth.new(\pipes, [\freq, msg[1].asInteger.midicps, \dur, 0.2, \amp, 0.5]);
+	},
+	'/quarter'
+);
+)
+

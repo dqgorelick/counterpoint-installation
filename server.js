@@ -53,6 +53,12 @@ wss_view.on('connection', function(ws) {
           args: data.note
         })
         break;
+      case 3:
+        console.log('/drone');
+        udpPort.send({
+          address: '/drone',
+          args: data.note
+        })
       default:
         console.log('data.tempo',data.tempo);
         break;
