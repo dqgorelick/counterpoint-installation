@@ -36,24 +36,7 @@ SynthDef(\bpfsaw2, {
 }).add;
 )
 
-
 (
-OSCdef.new(
-	\drone,
-	{
-		arg msg, time, addr, port;
-		(msg[1].asInteger).postln;
-		n = msg[1];
-		n.postln;
-		(
-			Synth.new(\bpfsaw2, [
-				\freq, msg[1].asInteger.midicps,
-				\dur, 3.5, \atk, 0.3, \rel, 4.5, \amp, 0.80, \out, 0, \pan, 0,
-			]);
-		)
-	},
-	'/drone'
-);
 
 OSCdef.new(
 	\half,
@@ -155,7 +138,7 @@ SynthDef("pipes", { arg scl = 0.2, freq = 440, ipress = 0.9, ibreath = 0.09, ife
 	kenvibr = EnvGen.kr(Env.new( [ 0.0, 0.0, 1, 1, 0.0 ], [ 0.5, 0.5, dur - 1.5, 0.5 ], 'linear') );
 
 	// create air flow and vibrato
-	aflow1 = LFClipNoise.ar( sr, kenv1 ) * 0.25 ;
+	aflow1 = LFClipNoise.ar( sr, kenv1 ) * 0.2 ;
 	kvibr = SinOsc.ar( 5, 0, 0.1 * kenvibr );
 
 	asum1 = ( ibreath * aflow1 ) + kenv1 + kvibr;
@@ -194,47 +177,6 @@ Pbind(
 	\amp, Pwhite(0.1, 0.4)
 ).play
 )
-
-// pipes
-(
-OSCdef.new(
-	\eighth,
-	{
-		arg msg, time, addr, port;
-		(msg[1].asInteger).postln;
-		n = msg[1];
-		n.postln;
-		Synth.new(\pipes, [\freq, msg[1].asInteger.midicps, \dur, 0.1, \amp, 0.45]);
-	},
-	'/eighth'
-);
-
-
-OSCdef.new(
-	\quarter,
-	{
-		arg msg, time, addr, port;
-		(msg[1].asInteger).postln;
-		n = msg[1];
-		n.postln;
-		Synth.new(\pipes, [\freq, msg[1].asInteger.midicps, \dur, 0.2, \amp, 0.5]);
-	},
-	'/quarter'
-);
-
-OSCdef.new(
-	\half,
-	{
-		arg msg, time, addr, port;
-		(msg[1].asInteger).postln;
-		n = msg[1];
-		n.postln;
-		Synth.new(\pipes, [\freq, msg[1].asInteger.midicps, \dur, 0.4, \amp, 0.55]);
-	},
-	'/half'
-);
-)
-
 
 // quiet longer notes
 (
@@ -280,3 +222,62 @@ OSCdef.new(
 );
 )
 
+// drone
+(
+OSCdef.new(
+	\drone,
+	{
+		arg msg, time, addr, port;
+		(msg[1].asInteger).postln;
+		n = msg[1];
+		n.postln;
+		(
+			Synth.new(\bpfsaw2, [
+				\freq, msg[1].asInteger.midicps,
+				\dur, 3.5, \atk, 0.3, \rel, 4.5, \amp, 0.45, \out, 0, \pan, 0,
+			]);
+		)
+	},
+	'/drone'
+);
+
+)
+// pipes
+(
+OSCdef.new(
+	\eighth,
+	{
+		arg msg, time, addr, port;
+		(msg[1].asInteger).postln;
+		n = msg[1];
+		n.postln;
+		Synth.new(\pipes, [\freq, msg[1].asInteger.midicps, \dur, 0.1, \amp, 0.40]);
+	},
+	'/eighth'
+);
+
+
+OSCdef.new(
+	\quarter,
+	{
+		arg msg, time, addr, port;
+		(msg[1].asInteger).postln;
+		n = msg[1];
+		n.postln;
+		Synth.new(\pipes, [\freq, msg[1].asInteger.midicps, \dur, 0.2, \amp, 0.39]);
+	},
+	'/quarter'
+);
+
+OSCdef.new(
+	\half,
+	{
+		arg msg, time, addr, port;
+		(msg[1].asInteger).postln;
+		n = msg[1];
+		n.postln;
+		Synth.new(\pipes, [\freq, msg[1].asInteger.midicps, \dur, 0.4, \amp, 0.35]);
+	},
+	'/half'
+);
+)

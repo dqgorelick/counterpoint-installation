@@ -116,22 +116,6 @@ wss.on('connection', (ws) => {
 })
 
 
-function heartbeat() {
-  wss.broadcast(JSON.stringify({type: 'heartbeat'}));
-  // check if player is active, set to be inactive
-  // if inactive, delete player
-  // // send message to view
-  // _.forOwn(players, function(key, value) {
-  //   console.log('key',key);
-  //   console.log('value',value);
-  //   players[key]
-  // })
-}
-
-setInterval(heartbeat, 3000);
-
-
-
 /************************************
     OSC SOCKET
 *************************************/
@@ -161,11 +145,11 @@ var udpPort = new osc.UDPPort({
 
 udpPort.on('ready', function() {
   var ipAddresses = getIPAddresses()
-  console.log('Listening for OSC over UDP.')
+  // console.log('Listening for OSC over UDP.')
   ipAddresses.forEach(function(address) {
-    console.log(' Host:', address + ', Port:', udpPort.options.localPort)
+    // console.log(' Host:', address + ', Port:', udpPort.options.localPort)
   })
-  console.log(`To start the demo, go to http://localhost:${STATIC_PORT} in your web browser.`)
+  console.log(`Hi Signal!\nHead over to http://localhost:${STATIC_PORT} in the browser.`)
 })
 
 udpPort.open()

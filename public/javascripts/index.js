@@ -2,24 +2,8 @@ $(document).ready(function() {
   /*
       SOCKETS
    */
-  // home
-  // var socket = new WebSocket("ws://192.168.0.4:8088/");
-  // sfpc
-  // var socket = new WebSocket("ws://192.168.1.237:8088/");
-  // sfpc ngrok
+
   var socket = new WebSocket("ws://sfpc_view.ngrok.io/");
-  // localhost
-  // var socket = new WebSocket("ws://127.0.0.1:8088/");
-
-  // var socket = new WebSocket("ws://10.1.10.85:8088/")
-
-  // var socket = new WebSocket("ws://192.168.1.170:8088/");
-  // catberry
-  // var socket = new WebSocket("ws://10.0.1.31:8088/");
-  // lior
-  // var socket = new WebSocket("ws://192.168.0.6:8088/");
-  // vince
-  // var socket = new WebSocket("ws://192.168.1.207:8088/");
 
   socket.onmessage = function(evt) {};
 
@@ -35,14 +19,21 @@ $(document).ready(function() {
       TEMPO LOGIC
    */
   // auto assign quarter note or half note
+
+  var playerTempo = 2;
+  if (location.hash === '#demo') {
+    playerTempo = 0;
+  }
+  console.log("playerTempo", playerTempo);
+
   var tempo = Math.floor(Math.random() * 3);
-  $('.tempo ul #' + tempo).addClass('active');
+  // $('.tempo ul #' + tempo).addClass('active');
 
   $('.tempo ul li').on('touchstart', function(evt) {
     $('.tempo ul li').removeClass('active');
     $(this).addClass('active');
     tempo = this.id;
-    socket.send(JSON.stringify({ type: 'tempo', tempo: tempo }));
+    socket.send(JSON.stringify({ type: 'tempo', tempo: playerTempo }));
   });
 
   $('#play').on('touchstart', function(evt) {
@@ -114,14 +105,6 @@ $(document).ready(function() {
     ctx.strokeStyle = lineColor;
     ctx.stroke();
 
-    // ctx.beginPath();
-    // ctx.rect(x - 9, ctx.canvas.height / 2 - 9, 18, 18);
-    // ctx.fillStyle = 'white';
-    // ctx.fill();
-    // ctx.beginPath();
-    // ctx.rect(x - 5, ctx.canvas.height / 2 - 5, 10, 10);
-    // ctx.fillStyle = (primary ? lineColor : complement);
-    // ctx.fill();
   }
 
   function addNode(x, direction) {
@@ -225,7 +208,7 @@ $(document).ready(function() {
     if (playing) {
       timeout += 1;
       // 1000 seconds before being removed from the screen
-      if (timeout >= 30) {
+      if (timeout >= 60) {
         playing = false;
         timeout = 0;
         drawLine();

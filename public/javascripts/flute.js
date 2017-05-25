@@ -7,7 +7,7 @@
 var QUANTIZE = true;
 var PORT_PLAYER = 8888;
 
-var DEFAULT_BASE_NOTE = 40;
+var DEFAULT_BASE_NOTE = 42;
 var DEFAULT_SONG_RATE = 450;
 
 var MODES = { player: 1, song: 2 };
@@ -22,13 +22,14 @@ var PENTATONIC_SCALE = [0, 2, 4, 7, 9];
 var MINOR_SCALE = [0, 2, 3, 5, 7, 8, 10];
 
 var TEMPOS = {
-  0: 350,
-  1: 700,
-  2: 1050,
+  0: 300,
+  1: 600,
+  2: 1200,
   3: 5000,
 }
 
-var CURRENT_SCALE = MINOR_SCALE;
+// var CURRENT_SCALE = MINOR_SCALE;
+var CURRENT_SCALE = MAJOR_SCALE;
 var CANVAS_TOP = null; // get this from the css file from .note
 var CURSOR_WIDTH = 26;
 var CW = 1;
@@ -357,19 +358,20 @@ $(document).ready(function() {
   }
 
   function createNewPlayer(tempo) {
-    var color = goldenColors.getHsvGolden(0.33, 0.90);
+    var color = goldenColors.getHsvGolden(0.5, 0.90);
     var lineColorRGB = { r: color.r, g: color.g, b: color.b };
     var lineColor = colorToHex(color.r, color.g, color.b);
     var props =  {
       color: {
         hex: "#ffffff",
-        rgb: {r:255,g:255,b:255},
-        // hex: lineColor,
-        // rgb: lineColorRGB
+        // rgb: {r:255,g:255,b:255},
+        hex: lineColor,
+        rgb: lineColorRGB
       },
       id: UUID(),
       notes: generateSong(),
       tempo: tempo ? tempo : randRange(0,3)
+      // tempo: tempo ? tempo : 2
     };
 
     players[props.id] = props;
@@ -406,6 +408,23 @@ $(document).ready(function() {
     $('#playerCount').html(Object.keys(players).length);
   }
 
+  document.addEventListener("keydown", function(event) {
+    switch(event.which) {
+      case 65:
+        console.log("event.which", event.which);
+        console.log('add new player');
+        createNewPlayer();
+        break;
+      case 68:
+        console.log("event.which", event.which);
+        console.log('add new drone');
+        createNewPlayer(3);
+        break;
+      case 82:
+        removeAllPlayers();
+        break;
+    }
+  });
   $('#add').click(function() {
     createNewPlayer();
   })
@@ -421,6 +440,7 @@ $(document).ready(function() {
 
   // view web socket
   var socket = new WebSocket('ws://localhost:8082/');
+
   socket.onmessage = function(evt) {
     var message = JSON.parse(evt.data);
     if (message.type === 'notes') {
@@ -526,7 +546,7 @@ $(document).ready(function() {
         // increase timeout every second
         players[id].player.timeout += TEMPOS[0];
         // remove player if no actions for more than 30 seconds
-        if (players[id].player.timeout >= 30000) {
+        if (players[id].player.timeout >= 61000) {
           players[id].player.stop();
           players[id].player.remove();
           players[id] = null;
@@ -549,4 +569,10 @@ $(document).ready(function() {
     sendNote(notes[note].midi);
   });
 
+
 });
+
+window.addEventListener('hashchange', function() {
+  console.log('hello');
+  $('.url span').html(location.hash.slice(1));
+})
