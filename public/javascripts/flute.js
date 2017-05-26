@@ -36,7 +36,7 @@ var CW = 1;
 var CCW = -1;
 var CURSOR_LEFT = 0;
 var CURSOR_RIGHT = 1;
-var STEPS = 16;
+var STEPS = 15;
 var NOTE_DURATION = 200; // 0.2 second delay set in SuperCollider
 
 var notes = [];
@@ -95,8 +95,7 @@ var Player = function(id, options, sendNote) {
     console.log('drone added');
     this.jQuery.find('.cursor-wrapper').addClass('drone');
   }
-  // this.jQuery.css('-webkit-transition', 'all ' + this.songRate + 'ms linear');
-  // this.jQuery.css('transition', 'all ' + this.songRate + 'ms linear');
+
   this.jQuery.css('-webkit-transition', '-webkit-transform ' + this.songRate + 'ms linear');
   this.jQuery.css('transition', 'transform ' + this.songRate + 'ms linear');
   this.cursorRight.css('background-color', options.color.hex);
@@ -537,7 +536,6 @@ $(document).ready(function() {
         // look for players to start
         if (players[id].toStart) {
           // reset timeout upon new input
-          console.log('starting player');
           players[id].player.timeout = 0;
           players[id].toStart = false;
           players[id].player.start();
@@ -572,7 +570,7 @@ $(document).ready(function() {
 
 });
 
+// used for talk
 window.addEventListener('hashchange', function() {
-  console.log('hello');
   $('.url span').html(location.hash.slice(1));
 })

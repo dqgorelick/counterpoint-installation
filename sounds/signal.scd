@@ -1,17 +1,11 @@
-// [-3],[-2,],[-1],[0],[1],[2],[3],[4],[5]
-// [-7,0,7, -6,1,8,-5,2,9],
-// [0,7,2,9],
-
 // getting things started
 (
 Server.local.boot;
 ~b = NetAddr.new("127.0.0.1", 57121);
-s.plotTree;
 )
-s.plotTree;
 
 
-// organ instrument
+// activate organ instrument synth
 
 (
 SynthDef(\bpfsaw2, {
@@ -36,81 +30,9 @@ SynthDef(\bpfsaw2, {
 }).add;
 )
 
-(
-
-OSCdef.new(
-	\half,
-	{
-		arg msg, time, addr, port;
-		(msg[1].asInteger).postln;
-		n = msg[1];
-		n.postln;
-		(
-			Synth.new(\bpfsaw2, [
-				\freq, msg[1].asInteger.midicps,
-				\dur, 0.8, \atk, 0.25, \rel, 1.1, \amp, 0.50, \out, 0, \pan, 0,
-			]);
-		)
-	},
-	'/half'
-);
-
-OSCdef.new(
-	\quarter,
-	{
-		arg msg, time, addr, port;
-		(msg[1].asInteger).postln;
-		n = msg[1];
-		n.postln;
-		(
-			Synth.new(\bpfsaw2, [
-				\freq, msg[1].asInteger.midicps, \dur, 0.5, \atk, 0.04, \rel, 0.5, \amp, 1,
-			]);
-		)
-	},
-	'/quarter'
-);
-
-
-
-OSCdef.new(
-	\eighth,
-	{
-		arg msg, time, addr, port;
-		(msg[1].asInteger).postln;
-		n = msg[1];
-		n.postln;
-		(
-			Synth.new(\bpfsaw2, [
-				\freq, msg[1].asInteger.midicps, \dur, 0.3, \atk, 0.04, \amp, 1, \rel, 0.4
-			]);
-		)
-	},
-	'\eighth'
-);
-)
-
-
-(
-Synth.new(\bpfsaw2, [
-	\freq, 48.asInteger.midicps,
-	\dur, 5.0,
-	\atk, 0.75,
-	\rel, 6.5,
-	\cfmin, 50,
-	\cfmax, 250,
-	\rqmin, 0.2,
-	\rqmax, 0.25,
-	\ldb, 6,
-	\amp, 1,
-	\out, 0,
-	\pan, 0,
-]);
-)
-
 ~chords.stop;
 
-// pipes instrument
+// activate flute / pipes instrument
 
 (
 SynthDef("pipes", { arg scl = 0.2, freq = 440, ipress = 0.9, ibreath = 0.09, ifeedbk1 = 0.4, ifeedbk2 = 0.4, dur = 1, gate = 1, amp = 2;
@@ -138,7 +60,7 @@ SynthDef("pipes", { arg scl = 0.2, freq = 440, ipress = 0.9, ibreath = 0.09, ife
 	kenvibr = EnvGen.kr(Env.new( [ 0.0, 0.0, 1, 1, 0.0 ], [ 0.5, 0.5, dur - 1.5, 0.5 ], 'linear') );
 
 	// create air flow and vibrato
-	aflow1 = LFClipNoise.ar( sr, kenv1 ) * 0.2 ;
+	aflow1 = LFClipNoise.ar( sr, kenv1 ) * 0.3 ;
 	kvibr = SinOsc.ar( 5, 0, 0.1 * kenvibr );
 
 	asum1 = ( ibreath * aflow1 ) + kenv1 + kvibr;
@@ -168,7 +90,7 @@ SynthDef("pipes", { arg scl = 0.2, freq = 440, ipress = 0.9, ibreath = 0.09, ife
 }).add;
 )
 
-// test flute
+// test flute noise
 (
 Pbind(
 	\instrument, "pipes",
@@ -178,7 +100,29 @@ Pbind(
 ).play
 )
 
-// quiet longer notes
+
+
+// drone noise, 5 sec note
+(
+OSCdef.new(
+	\drone,
+	{
+		arg msg, time, addr, port;
+		(msg[1].asInteger).postln;
+		n = msg[1];
+		n.postln;
+		(
+			Synth.new(\bpfsaw2, [
+				\freq, msg[1].asInteger.midicps,
+				\dur, 3.5, \atk, 0.3, \rel, 4.5, \amp, 0.45, \out, 0, \pan, 0,
+			]);
+		)
+	},
+	'/drone'
+);
+
+
+// SOUND 1: quiet longer notes
 (
 OSCdef.new(
 	\half,
@@ -196,6 +140,7 @@ OSCdef.new(
 	},
 	'/half'
 );
+
 OSCdef.new(
 	\eighth,
 	{
@@ -222,27 +167,9 @@ OSCdef.new(
 );
 )
 
-// drone
-(
-OSCdef.new(
-	\drone,
-	{
-		arg msg, time, addr, port;
-		(msg[1].asInteger).postln;
-		n = msg[1];
-		n.postln;
-		(
-			Synth.new(\bpfsaw2, [
-				\freq, msg[1].asInteger.midicps,
-				\dur, 3.5, \atk, 0.3, \rel, 4.5, \amp, 0.45, \out, 0, \pan, 0,
-			]);
-		)
-	},
-	'/drone'
-);
 
 )
-// pipes
+// SOUND 2: flute / pipes sound (used in talk)
 (
 OSCdef.new(
 	\eighth,

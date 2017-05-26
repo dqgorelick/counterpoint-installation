@@ -3,7 +3,13 @@ $(document).ready(function() {
       SOCKETS
    */
 
-  var socket = new WebSocket("ws://sfpc_view.ngrok.io/");
+  // Connect to port for PLAYER_SOCKET in server.js
+
+  // local host:
+  var socket = new WebSocket("ws://127.0.0.1:8088/");
+
+  // ngrok example
+  // var socket = new WebSocket("ws://sfpc_view.ngrok.io/");
 
   socket.onmessage = function(evt) {};
 
@@ -12,28 +18,20 @@ $(document).ready(function() {
     $('.reconnect').css('display', 'initial');
     setTimeout(function() { $('.modal-wrapper').css('opacity', '1');}, 250);
     $('.modal-wrapper').css('display', 'initial')
-
-    // }
   };
   /*
       TEMPO LOGIC
    */
   // auto assign quarter note or half note
 
-  var playerTempo = 2;
-  if (location.hash === '#demo') {
-    playerTempo = 0;
-  }
-  console.log("playerTempo", playerTempo);
-
   var tempo = Math.floor(Math.random() * 3);
-  // $('.tempo ul #' + tempo).addClass('active');
+  $('.tempo ul #' + tempo).addClass('active');
 
   $('.tempo ul li').on('touchstart', function(evt) {
     $('.tempo ul li').removeClass('active');
     $(this).addClass('active');
     tempo = this.id;
-    socket.send(JSON.stringify({ type: 'tempo', tempo: playerTempo }));
+    socket.send(JSON.stringify({ type: 'tempo', tempo: tempo }));
   });
 
   $('#play').on('touchstart', function(evt) {
